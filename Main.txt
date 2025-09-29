@@ -6311,6 +6311,35 @@ workspace.CurrentCamera.CameraSubject=game.Players.LocalPlayer.Character:WaitFor
   end
 })
 
+-- ========== PROTEÇÃO CONTRA RESET NO CARREGAMENTO ==========
+_G.hubCarregando = true
+_G.togglesInicializadas = {}
+
+spawn(function()
+    -- Espera o ReplicatedStorage estar pronto
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Remotes = ReplicatedStorage:WaitForChild("Remotes", 10)
+    
+    if Remotes then
+        local ResetRemote = Remotes:WaitForChild("ResetCharacterAppearance", 10)
+        
+        if ResetRemote then
+            -- Sobrescreve a função de reset
+            local ResetOriginal = ResetRemote.FireServer
+            ResetRemote.FireServer = function(...)
+                if _G.hubCarregando then
+                    return -- Bloqueia reset durante carregamento
+                end
+                return ResetOriginal(...)
+            end
+        end
+    end
+    
+    -- Libera após 3 segundos
+    wait(3)
+    _G.hubCarregando = false
+end)
+-- ============================================================
 
 local Tab = Window:MakeTab({"Avatar", "rbxassetid://10734952036"})
 
@@ -6966,14 +6995,17 @@ Tab:AddButton({
     end
 })
 
--- Toggle para ativar/desativar o corpo personalizado
 Tab:AddToggle({
     Name = "Small",
     Description = "",
     Default = false,
     Flag = "custom_body_toggle",
     Callback = function(Value)
-        -- Corpo personalizado que será aplicado
+        if not _G.togglesInicializadas["Small"] then
+            _G.togglesInicializadas["Small"] = true
+            return
+        end
+        
         local customBody = {
             [1] = 104157277410075,
             [2] = 86280536086607,
@@ -6982,40 +7014,27 @@ Tab:AddToggle({
             [5] = 122626731952977,
             [6] = 134082579
         }
-
-        -- Função para aplicar o corpo personalizado
-        local function applyCustomBody()
-            local args = {
-                [1] = customBody
-            }
-            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
-        end
-
-        -- Função para resetar para a aparência original
-        local function resetToOriginalBody()
-            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-        end
         
         if Value then
-            -- Ativando corpo personalizado
-            applyCustomBody()
-            print("Corpo personalizado ativado!")
+            local args = {[1] = customBody}
+            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
         else
-            -- Desativando corpo personalizado - volta ao original
-            resetToOriginalBody()
-            print("Corpo resetado para o original!")
+            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
         end
     end
 })
 
--- Toggle para ativar/desativar o segundo corpo personalizado
 Tab:AddToggle({
     Name = "Giant Avatar",
     Description = "",
     Default = false,
     Flag = "custom_body_v2_toggle",
     Callback = function(Value)
-        -- Segundo corpo personalizado que será aplicado
+        if not _G.togglesInicializadas["Giant"] then
+            _G.togglesInicializadas["Giant"] = true
+            return
+        end
+        
         local customBodyV2 = {
             [1] = 17713016036,
             [2] = 17713016151,
@@ -7024,28 +7043,12 @@ Tab:AddToggle({
             [5] = 17713016191,
             [6] = 6340213
         }
-
-        -- Função para aplicar o segundo corpo personalizado
-        local function applyCustomBodyV2()
-            local args = {
-                [1] = customBodyV2
-            }
-            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
-        end
-
-        -- Função para resetar para a aparência original
-        local function resetToOriginalBody()
-            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
-        end
         
         if Value then
-            -- Ativando segundo corpo personalizado
-            applyCustomBodyV2()
-            print("Corpo personalizado V2 ativado!")
+            local args = {[1] = customBodyV2}
+            game:GetService("ReplicatedStorage").Remotes.ChangeCharacterBody:InvokeServer(unpack(args))
         else
-            -- Desativando corpo personalizado - volta ao original
-            resetToOriginalBody()
-            print("Corpo resetado para o original!")
+            game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
         end
     end
 })
