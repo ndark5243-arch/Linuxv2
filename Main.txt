@@ -3827,7 +3827,7 @@ scriptsTab:AddDropdown({
 scriptsTab:AddTextBox({
     Name = "Digite o Texto",
     Description = "Texto que será escrito com os itens",
-    PlaceholderText = "Ex: shad0ws",
+    PlaceholderText = "Ex: Linux",
     Callback = function(Value)
         textToWrite = Value
         if Value ~= "" then
