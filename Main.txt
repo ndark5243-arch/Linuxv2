@@ -7,12 +7,8 @@ local Window = redzlib:MakeWindow({
 })
 
 Window:AddMinimizeButton({
-    Button = { 
-        Image = "rbxassetid://91276493949227", -- seu ícone
-        BackgroundTransparency = 0, -- fundo 100% transparente
-        Size = UDim2.new(0, 80, 0, 80) -- ícone super grande
-    },
-    Corner = { CornerRadius = UDim.new(0, 0) }, -- se quiser quadrado, ou ajuste
+    Button = { Image = "rbxassetid://91276493949227", BackgroundTransparency = 0 },
+    Corner = { CornerRadius = UDim.new(35, 1) },
 })
 
 
